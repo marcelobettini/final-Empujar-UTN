@@ -1,0 +1,17 @@
+{
+  "name": "final",
+  "version": "1.0.0",
+  "description": "API UTN-Empujar proyecto final",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch --env-file ./.env ./index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": " <profe marce/>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
