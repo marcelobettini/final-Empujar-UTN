@@ -2,11 +2,17 @@ import jwt from "jsonwebtoken";
 const SECRET = process.env.JWT_SECRET;
 //crear el token
 export const tokenSign = async (user, time) => {
-  const sign = jwt.sign(user, SECRET, { expiresIn: time });
-  return sign;
+  const token = jwt.sign(user, SECRET, { expiresIn: time });
+  return token;
 };
 
 //verificar que el token haya sido firmado por el backend
 export const tokenVerify = async token => {
-  return jwt.verify(token, SECRET);
+  try {
+    const cleanToken = token.split(" ").pop();
+    const tokenVerification = jwt.verify(cleanToken, SECRET);
+    return true;
+  } catch (error) {
+    return false;
+  }
 };

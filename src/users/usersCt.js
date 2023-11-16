@@ -27,14 +27,14 @@ export class UserCt {
     const isUser = await UserMd.getUserByEmail(email);
     if (!isUser)
       return res.status(401).json({ message: "Incorrect email or password" });
+    const isValidPassword = await checkPassword(pass, isUser[0].pass);
+    if (!isValidPassword)
+      return res.status(401).json({ message: "Incorrect email or password" });
     const tokenPayload = {
       fullName: isUser[0].fullName,
       email: isUser[0].email,
     };
-    const isValidPassword = await checkPassword(pass, isUser[0].pass);
-    if (!isValidPassword)
-      return res.status(401).json({ message: "Incorrect email or password" });
-    const jwt = await tokenSign(tokenPayload, 1000 * 60);
+    const jwt = await tokenSign(tokenPayload, 1000 * 60 * 60 * 24 * 365);
 
     res.status(200).json({ message: "Login successful", token: jwt });
   }

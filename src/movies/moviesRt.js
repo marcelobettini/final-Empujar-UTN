@@ -1,13 +1,15 @@
 import { Router } from "express";
 export const router = Router();
+import { isAuth } from "../../middlewares/session.js";
 
 import { MovieCt } from "./moviesCt.js";
 router.get("/", MovieCt.getAll);
 
 router.get("/:id", MovieCt.getById);
 
-router.delete("/:id", MovieCt.deleteOne);
+//insert auth_middleware between request and controller
+router.delete("/:id", isAuth, MovieCt.deleteOne);
 
-router.post("/", MovieCt.addOne);
+router.post("/", isAuth, MovieCt.addOne);
 
-router.patch("/:id", MovieCt.updateOne);
+router.patch("/:id", isAuth, MovieCt.updateOne);
