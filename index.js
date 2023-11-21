@@ -6,6 +6,7 @@ const PORT = process.env.PORT ?? 3000;
 const app = express();
 app.use(cors("*"));
 app.disable("x-powered-by");
+app.use(express.static("public"));
 // app.options("/movies", (req, res) => {
 //   res.header("Access-Control-Allow-Origin", "*");
 //   res.header(

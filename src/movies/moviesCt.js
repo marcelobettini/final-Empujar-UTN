@@ -1,18 +1,18 @@
 import { MovieMd } from "./movieMd.js";
 import { isValidUUID } from "../utils/isValidUUID.js";
 import { validateMovie } from "./movieVa.js";
+const URL = process.env.PUBLIC_URL;
 export class MovieCt {
+  //trae todos o trae por param director
   static async getAll(req, res) {
     // res.header("Access-Control-Allow-Origin", "*");
     const { director } = req.query;
     const movies = await MovieMd.getAll(director);
-    //resolver que la respuesta sea una película con todos sus géneros en vez de repetir la
-    // película por cada género al que la película pertenece
     movies
       ? res.status(200).json(movies)
       : res.status(404).json({ message: "Movie Not Found" });
   }
-
+  //trae por id
   static async getById(req, res) {
     const { id } = req.params;
     const isValidID = isValidUUID(id);
@@ -23,23 +23,37 @@ export class MovieCt {
       return res.status(404).json({ message: "Movie Not Found" });
     res.status(200).json(movie);
   }
-
+  //borrar
   static async deleteOne(req, res) {
     const { id } = req.params;
     const isValidID = isValidUUID(id);
     if (!isValidID) return res.status(422).json({ message: "Not valid ID" });
     const result = await MovieMd.deleteOne(id);
     if (!result) return res.status(404).json({ message: "Movie Not Found" });
-    res.status(204);
+    res.send(204);
   }
-
+  //crear una
   static async addOne(req, res) {
-    const validationResult = validateMovie(req.body);
+    const { title, year, director, duration, genre, rate } = req.body;
+    const poster = `${URL}/${req.file.filename}`;
+    const validationResult = validateMovie({
+      title,
+      year: Number(year),
+      director,
+      duration: Number(duration),
+      genre: genre.split(", "),
+      rate: Number(rate),
+      poster,
+    });
     if (!validationResult.success) {
       return res.status(422).json(validationResult.error);
     }
+
     try {
-      await MovieMd.addOne(req.body);
+      await MovieMd.addOne({
+        ...validationResult.data,
+        poster,
+      });
       res.status(201).json({ message: "Movie created" });
     } catch (error) {
       error.message.startsWith("Incorrect")

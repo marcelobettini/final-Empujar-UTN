@@ -4,17 +4,35 @@ export class MovieMd {
   static async getAll(director) {
     if (!director) {
       const [movies, _info] = await connection.query(
-        `SELECT m.title, g.name as genre, m.year, m.director, BIN_TO_UUID(m.id) AS id FROM movies m
-      JOIN movie_genres mg ON mg.movie_id = m.id
-      JOIN genres g ON mg.genre_id = g.id`
+        `SELECT
+        m.title,
+        GROUP_CONCAT(g.name SEPARATOR ', ') AS genres,      
+        m.director,
+        BIN_TO_UUID(m.id) AS id
+    FROM
+        movies m
+    JOIN
+        movie_genres mg ON mg.movie_id = m.id
+    JOIN
+        genres g ON mg.genre_id = g.id
+    GROUP BY m.id;`
       );
       return movies.length ? movies : null;
     }
 
     const [movies, _info] = await connection.query(
-      `SELECT m.title, g.name as genre, m.year, m.director, BIN_TO_UUID(m.id) AS id FROM movies m
-      JOIN movie_genres mg ON mg.movie_id = m.id
-      JOIN genres g ON mg.genre_id = g.id
+      `SELECT
+      m.title,
+      GROUP_CONCAT(g.name SEPARATOR ', ') AS genres,    
+      m.director,
+      BIN_TO_UUID(m.id) AS id
+  FROM
+      movies m
+  JOIN
+      movie_genres mg ON mg.movie_id = m.id
+  JOIN
+      genres g ON mg.genre_id = g.id
+  GROUP BY m.id;
       WHERE director = ?`,
       [director]
     );
@@ -52,9 +70,9 @@ JOIN genres g ON mg.genre_id = g.id
 
     const result = await connection.query(
       `
-    INSERT INTO movies (title, year, director, duration, poster, rate) 
+    INSERT INTO movies (title, year, director, duration, rate, poster) 
     VALUES (?,?,?,?,?,?)`,
-      [title, year, director, duration, poster, rate]
+      [title, year, director, duration, rate, poster]
     );
     for (const gen of genre) {
       await connection.query(
