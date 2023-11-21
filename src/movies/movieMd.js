@@ -15,7 +15,8 @@ export class MovieMd {
         movie_genres mg ON mg.movie_id = m.id
     JOIN
         genres g ON mg.genre_id = g.id
-    GROUP BY m.id;`
+    GROUP BY m.id
+    ORDER BY m.title;`
       );
       return movies.length ? movies : null;
     }
@@ -33,7 +34,8 @@ export class MovieMd {
   JOIN
       genres g ON mg.genre_id = g.id
   GROUP BY m.id;
-      WHERE director = ?`,
+      WHERE director = ?
+  ORDER BY m.title`,
       [director]
     );
     return movies.length ? movies : null;
