@@ -4,25 +4,79 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Testing</title>
-  <script>
-    function getAllMovies(url) {
-      fetch(url).then(res => res.json()).then(movies => {
-
-        console.log(movies);
-      });
-
+  <title>API tester</title>
+  <style>
+    main {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      text-align: center;
     }
 
-    getAllMovies('http://localhost:3000/movies')
+    article {
+      box-shadow: 2px 2px 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+    }
+
+    img {
+      width: 100px
+    }
+
+    button {
+      border: transparent;
+      background-color: tomato;
+      color: white;
+      padding: .5em;
+      border-radius: 7px;
+      text-transform: uppercase;
+    }
+  </style>
+  <script type="module">
+    fetch("http://localhost:3000/movies").then(res => res.json())
+      .then(movies => {
+        console.log(movies);
+        const html = movies.map(m => {
+          return `
+          <article data-id="${m.id}">
+            
+              <img src="${m.poster}" loading="lazy">
+              <h3>${m.title}</h2>
+              <p>${m.year}</p>
+              <p>${m.director}</p>              
+                       
+              <button>Eliminar</button>              
+          </article>
+              `;
+        }).join('');
+        console.log("html con join", html);
+        document.querySelector("main").innerHTML = html;
+        document.addEventListener("click", e => {
+          if (e.target.matches("button")) {
+            const article = e.target.closest("article");
+            const id = article.dataset.id;
+            fetch(`http://localhost:3000/movies/${id}`, {
+              method: 'DELETE'
+            })
+              .then(res => {
+                if (res.ok) {
+                  article.remove();
+                }
+              });
+          }
+        });
+      })
+
+
   </script>
 </head>
 
 <body>
+  <main></main>
 
-  <main>
-
-  </main>
 </body>
 
 </html>

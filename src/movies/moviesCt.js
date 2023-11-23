@@ -23,6 +23,14 @@ export class MovieCt {
       return res.status(404).json({ message: "Movie Not Found" });
     res.status(200).json(movie);
   }
+
+  //trae por director
+  static async getByQuery(req, res) {
+    if (!req.query.director)
+      return res
+        .status(400)
+        .json({ message: "must be similar to ?director=spielgerg" });
+  }
   //borrar
   static async deleteOne(req, res) {
     const { id } = req.params;

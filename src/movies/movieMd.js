@@ -6,8 +6,10 @@ export class MovieMd {
       const [movies, _info] = await connection.query(
         `SELECT
         m.title,
-        GROUP_CONCAT(g.name SEPARATOR ', ') AS genres,      
+        GROUP_CONCAT(g.name SEPARATOR ', ') AS genres,
+        m.year,
         m.director,
+        m.poster,
         BIN_TO_UUID(m.id) AS id
     FROM
         movies m
@@ -15,8 +17,9 @@ export class MovieMd {
         movie_genres mg ON mg.movie_id = m.id
     JOIN
         genres g ON mg.genre_id = g.id
+        
     GROUP BY m.id
-    ORDER BY m.title;`
+    ORDER BY m.title`
       );
       return movies.length ? movies : null;
     }
@@ -24,18 +27,20 @@ export class MovieMd {
     const [movies, _info] = await connection.query(
       `SELECT
       m.title,
-      GROUP_CONCAT(g.name SEPARATOR ', ') AS genres,    
+      GROUP_CONCAT(g.name SEPARATOR ', ') AS genres,
+      m.year,
       m.director,
+      m.poster,
       BIN_TO_UUID(m.id) AS id
   FROM
       movies m
   JOIN
       movie_genres mg ON mg.movie_id = m.id
   JOIN
-      genres g ON mg.genre_id = g.id
-  GROUP BY m.id;
-      WHERE director = ?
-  ORDER BY m.title`,
+      genres g ON mg.genre_id = g.id        
+      WHERE director LIKE '%' ? '%'
+      GROUP BY m.id;
+  `,
       [director]
     );
     return movies.length ? movies : null;
