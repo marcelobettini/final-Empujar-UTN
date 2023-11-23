@@ -38,7 +38,7 @@ export class MovieCt {
     if (!isValidID) return res.status(422).json({ message: "Not valid ID" });
     const result = await MovieMd.deleteOne(id);
     if (!result) return res.status(404).json({ message: "Movie Not Found" });
-    res.send(204);
+    res.sendStatus(204);
   }
   //crear una
   static async addOne(req, res) {

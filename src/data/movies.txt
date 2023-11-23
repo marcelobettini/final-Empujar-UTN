@@ -1,0 +1,167 @@
+DROP DATABASE if exists movies;
+CREATE DATABASE IF NOT EXISTS movies;
+USE movies;
+CREATE TABLE IF NOT EXISTS movies (
+    id BINARY(16) PRIMARY KEY DEFAULT (UNHEX(REPLACE(UUID(), '-', ''))),
+    title VARCHAR(128) NOT NULL,
+    year YEAR NOT NULL,
+    duration INT NOT NULL,
+    poster TEXT,    
+    rate DECIMAL(2,1) NOT NULL CHECK (rate >= 0 AND rate <= 10),
+    director VARCHAR(64)
+    );
+    
+CREATE TABLE IF NOT EXISTS genres (
+ id INT AUTO_INCREMENT PRIMARY KEY,
+ name VARCHAR(32) NOT NULL UNIQUE     
+ );
+INSERT INTO genres (name) VALUES
+('Action'), ('Adventure'), ('Animation'), ('Biography'), ('Crime'), ('Drama'), ('Fantasy'), ('Film-Noir'), ('Horror'), ('Mystery'), ('Romance'), ('Sci-Fi'), ('Thriller');
+
+INSERT INTO movies (title, year, duration, poster, rate, director)
+VALUES
+('The Shawshank Redemption', 1994, 142, 'https://i.ebayimg.com/images/g/4goAAOSwMyBe7hnQ/s-l1200.webp', 9.3, 'Frank Darabont'),
+('The Dark Knight', 2008, 152, 'https://i.ebayimg.com/images/g/yokAAOSw8w1YARbm/s-l1200.jpg', 9, 'Christopher Nolan'),
+('Inception', 2010, 148, 'https://m.media-amazon.com/images/I/91Rc8cAmnAL._AC_UF1000,1000_QL80_.jpg', 8.8, 'Christopher Nolan'),
+('Pulp Fiction', 1994, 154, 'https://www.themoviedb.org/t/p/original/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg', 8.9, 'Quentin Tarantino'),
+('Forrest Gump', 1994, 142, 'https://i.ebayimg.com/images/g/qR8AAOSwkvRZzuMD/s-l1600.jpg', 8.8, 'Robert Zemeckis'),
+('Gladiator', 2000, 155, 'https://img.fruugo.com/product/0/60/14417600_max.jpg', 8.5, 'Ridley Scott'),
+('The Matrix', 1999, 136, 'https://i.ebayimg.com/images/g/QFQAAOSwAQpfjaA6/s-l1200.jpg', 8.7, 'Lana Wachowski'),
+('Interstellar', 2014, 169, 'https://m.media-amazon.com/images/I/91obuWzA3XL._AC_UF1000,1000_QL80_.jpg', 8.6, 'Christopher Nolan'),
+('The Lord of the Rings: The Return of the King', 2003, 201, 'https://i.ebayimg.com/images/g/0hoAAOSwe7peaMLW/s-l1600.jpg', 8.9, 'Peter Jackson'),
+('The Lion King', 1994, 88, 'https://m.media-amazon.com/images/I/81BMmrwSFOL._AC_UF1000,1000_QL80_.jpg', 8.5, 'Roger Allers, Rob Minkoff'),
+('The Avengers', 2012, 143, 'https://img.fruugo.com/product/7/41/14532417_max.jpg', 8, 'Joss Whedon'),
+('Jurassic Park', 1993, 127, 'https://vice-press.com/cdn/shop/products/Jurassic-Park-Editions-poster-florey.jpg?v=1654518755&width=1024', 8.1, 'Steven Spielberg'),
+('Titanic', 1997, 195, 'https://i.pinimg.com/originals/42/42/65/4242658e6f1b0d6322a4a93e0383108b.png', 7.8, 'James Cameron'),
+('The Social Network', 2010, 120, 'https://i.pinimg.com/originals/7e/37/b9/7e37b994b613e94cba64f307b1983e39.jpg', 7.7, 'David Fincher'),
+('Avatar', 2009, 162, 'https://i.etsystatic.com/35681979/r/il/dfe3ba/3957859451/il_fullxfull.3957859451_h27r.jpg', 7.8, 'James Cameron'),
+('Die Hard', 1988, 132, 'https://filmartgallery.com/cdn/shop/products/Die-Hard-Vintage-Movie-Poster-Original-1-Sheet-27x41-7126.jpg?v=1672462859', 8.2, 'John McTiernan'),
+('The Rear Window', 1954, 112, 'https://m.media-amazon.com/images/I/81FA-25ugSL._AC_SL1500_.jpg', 8.4, 'Alfred Hitchcock'),
+('Alien', 1979, 117, 'https://filmartgallery.com/cdn/shop/files/Alien-Vintage-Movie-Poster-Original-1-Sheet-27x41.jpg?v=1684645235', 8.4, 'Ridley Scott');
+
+SELECT BIN_TO_UUID(id) AS id, title, year, duration, poster, rate, director FROM movies;
+
+/* 
+before discovering that we need to delete these references when deleting a movie
+CREATE TABLE movie_genres (
+      movie_id BINARY(16) REFERENCES movies(id),
+      genre_id INT REFERENCES genres(id),
+      PRIMARY KEY (movie_id, genre_id)
+      );
+*/
+
+CREATE TABLE movie_genres (
+  movie_id BINARY(16),
+  genre_id INT,
+  PRIMARY KEY (movie_id, genre_id),
+  FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE,
+  FOREIGN KEY (genre_id) REFERENCES genres(id)
+);
+
+-- The Shawshank Redemption (Drama)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'The Shawshank Redemption' AND g.name = 'Drama';
+
+-- The Dark Knight (Action, Crime, Drama)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'The Dark Knight' AND g.name IN ('Action', 'Crime', 'Drama');
+
+-- Inception (Action, Adventure, Sci-Fi)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'Inception' AND g.name IN ('Action', 'Adventure', 'Sci-Fi');
+
+-- Pulp Fiction (Crime, Drama)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'Pulp Fiction' AND g.name IN ('Crime', 'Drama');
+
+-- Forrest Gump (Drama, Romance)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'Forrest Gump' AND g.name IN ('Drama', 'Romance');
+
+-- Gladiator (Action, Adventure, Drama)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'Gladiator' AND g.name IN ('Action', 'Adventure', 'Drama');
+
+-- The Matrix (Action, Sci-Fi)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'The Matrix' AND g.name IN ('Action', 'Sci-Fi');
+
+-- Interstellar (Adventure, Drama, Sci-Fi)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'Interstellar' AND g.name IN ('Adventure', 'Drama', 'Sci-Fi');
+
+-- The Lord of the Rings: The Return of the King (Action, Adventure, Drama)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'The Lord of the Rings: The Return of the King' AND g.name IN ('Action', 'Adventure', 'Drama');
+
+-- The Lion King (Animation, Adventure, Drama)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'The Lion King' AND g.name IN ('Animation', 'Adventure', 'Drama');
+
+-- The Avengers (Action, Adventure, Sci-Fi)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'The Avengers' AND g.name IN ('Action', 'Adventure', 'Sci-Fi');
+
+-- Jurassic Park (Adventure, Sci-Fi)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'Jurassic Park' AND g.name IN ('Adventure', 'Sci-Fi');
+
+-- Titanic (Drama, Romance)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'Titanic' AND g.name IN ('Drama', 'Romance');
+
+-- The Social Network (Biography, Drama)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'The Social Network' AND g.name IN ('Biography', 'Drama');
+
+-- Avatar (Action, Adventure, Fantasy)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'Avatar' AND g.name IN ('Action', 'Adventure', 'Fantasy');
+
+-- Die Hard (Action, Thriller)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'Die Hard' AND g.name IN ('Action', 'Thriller');
+
+-- The Rear Window (Mystery, Thriller)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'The Rear Window' AND g.name IN ('Mystery', 'Thriller');
+
+-- Alien (Horror, Sci-Fi)
+INSERT INTO movie_genres (movie_id, genre_id)
+SELECT m.id, g.id
+FROM movies m
+JOIN genres g ON m.title = 'Alien' AND g.name IN ('Horror', 'Sci-Fi');
