@@ -1,6 +1,8 @@
 import { MovieMd } from "./movieMd.js";
 import { isValidUUID } from "../utils/isValidUUID.js";
-import { validateMovie } from "./movieVa.js";
+import { validateMovie, validateId } from "./movieVa.js";
+import { deleteImage } from "../utils/deleteImage.js";
+import path from "node:path";
 const URL = process.env.PUBLIC_URL;
 export class MovieCt {
   //trae todos o trae por param director
@@ -15,8 +17,12 @@ export class MovieCt {
   //trae por id
   static async getById(req, res) {
     const { id } = req.params;
-    const isValidID = isValidUUID(id);
-    if (!isValidID) return res.status(422).json({ message: "Not valid ID" });
+    // const isValidID = isValidUUID(id);
+    const isValidID = validateId(id);
+    console.log(isValidID);
+
+    if (!isValidID.success)
+      return res.status(422).json({ message: "Not valid ID" });
 
     const movie = await MovieMd.getById(id);
     if (!movie.length)
@@ -36,8 +42,11 @@ export class MovieCt {
     const { id } = req.params;
     const isValidID = isValidUUID(id);
     if (!isValidID) return res.status(422).json({ message: "Not valid ID" });
+    const [row] = await MovieMd.getById(id);
+    const fileName = row.poster.split("http://localhost:3000/").pop();
     const result = await MovieMd.deleteOne(id);
     if (!result) return res.status(404).json({ message: "Movie Not Found" });
+    await deleteImage(path.resolve(`./public/${fileName}`));
     res.sendStatus(204);
   }
   //crear una

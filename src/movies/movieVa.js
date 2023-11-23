@@ -4,8 +4,11 @@ const currentYear = new Date().getFullYear();
 /* movie entity->
 optional: validate id: UUID for get by id, delete, patch methods
 validate users
-
 */
+
+const idSchema = z.object({
+  id: z.string().uuid(),
+});
 
 const movieSchema = z.object({
   title: z.string({ required_error: "Field is required" }),
@@ -35,4 +38,7 @@ const movieSchema = z.object({
 
 export function validateMovie(object) {
   return movieSchema.safeParse(object);
+}
+export function validateId(object) {
+  return idSchema.safeParse(object);
 }

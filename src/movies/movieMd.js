@@ -52,7 +52,7 @@ export class MovieMd {
   static async getById(id) {
     const [movie, _info] = await connection.query(
       `     
-  SELECT title, year, director, rate, BIN_TO_UUID(id) as id FROM movies WHERE id = UUID_TO_BIN(?)`,
+  SELECT title, year, director, rate, BIN_TO_UUID(id) as id, poster  FROM movies WHERE id = UUID_TO_BIN(?)`,
       [id]
     );
 
