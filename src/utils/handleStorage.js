@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import multer from "multer";
-//recreate __dirname fotr ES Modules
+//recreate __dirname for ES Modules
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 const __filename = fileURLToPath(import.meta.url);

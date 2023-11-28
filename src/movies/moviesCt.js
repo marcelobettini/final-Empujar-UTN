@@ -52,20 +52,26 @@ export class MovieCt {
   //crear una
   static async addOne(req, res) {
     const { title, year, director, duration, genre, rate } = req.body;
+    let sanitisedGenre = [];
+    if (typeof genre === "string") {
+      sanitisedGenre.push(genre);
+    } else {
+      sanitisedGenre = genre;
+    }
     const poster = `${URL}/${req.file.filename}`;
     const validationResult = validateMovie({
       title,
       year: Number(year),
       director,
       duration: Number(duration),
-      genre: genre.split(", "),
+      genre: sanitisedGenre,
       rate: Number(rate),
       poster,
     });
     if (!validationResult.success) {
+      console.log(validationResult.error);
       return res.status(422).json(validationResult.error);
     }
-
     try {
       await MovieMd.addOne({
         ...validationResult.data,

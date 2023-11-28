@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
   <title>API tester</title>
   <style>
     main {
@@ -36,9 +39,21 @@
     }
   </style>
   <script type="module">
+    const form = document.getElementById("form");
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const newMovie = new FormData(form);
+      fetch("http://localhost:3000/movies", {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmdWxsTmFtZSI6IkZlZGVyaWNvIFRlcnJhemFzIiwiZW1haWwiOiJlbGZlZGVAdGVycmF6YXMuY29tIiwiaWF0IjoxNzAxMTk0NzExLCJleHAiOjMzMjM3MTk0NzExfQ.J8JL_l1Ft0Q2ppnliJtwO2xiU-yDGQPAMxobRDgA3C4'
+        },
+        body: newMovie
+      }).then(res => res.json()).then(res => console.log(res)).catch(err => console.error(err));
+    });
+
     fetch("http://localhost:3000/movies").then(res => res.json())
       .then(movies => {
-        console.log(movies);
         const html = movies.map(m => {
           return `
           <article data-id="${m.id}">
@@ -52,14 +67,16 @@
           </article>
               `;
         }).join('');
-        console.log("html con join", html);
         document.querySelector("main").innerHTML = html;
         document.addEventListener("click", e => {
           if (e.target.matches("button")) {
             const article = e.target.closest("article");
             const id = article.dataset.id;
             fetch(`http://localhost:3000/movies/${id}`, {
-              method: 'DELETE'
+              method: 'DELETE',
+              headers: {
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmdWxsTmFtZSI6IkZlZGVyaWNvIFRlcnJhemFzIiwiZW1haWwiOiJlbGZlZGVAdGVycmF6YXMuY29tIiwiaWF0IjoxNzAxMTk0NzExLCJleHAiOjMzMjM3MTk0NzExfQ.J8JL_l1Ft0Q2ppnliJtwO2xiU-yDGQPAMxobRDgA3C4'
+              },
             })
               .then(res => {
                 if (res.ok) {
@@ -74,7 +91,60 @@
   </script>
 </head>
 
-<body>
+<body class='container'>
+  <form id='form' enctype='multipart/form-data'>
+    <input type="text" placeholder='title' name='title'>
+    <input type="text" placeholder='year' name='year'>
+    <input type="text" placeholder='director' name='director'>
+    <input type="text" placeholder='duration' name='duration'>
+    <input type="file" name="posterName">
+    <!-- <input type="text" name='genre' placeholder='genre'> -->
+    <label>
+      <input type="checkbox" name="genre" value="Action"> Action
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Adventure"> Adventure
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Animation"> Animation
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Biography"> Biography
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Crime"> Crime
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Drama"> Drama
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Fantasy"> Fantasy
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Film-Noir"> Film-Noir
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Horror"> Horror
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Mystery"> Mystery
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Romance"> Romance
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Sci-Fi"> Sci-Fi
+    </label>
+    <label>
+      <input type="checkbox" name="genre" value="Thriller"> Thriller
+    </label>
+    <input type="text" placeholder='rate' name='rate'>
+
+    <input type="submit" value="Save">
+
+
+
+  </form>
   <main></main>
 
 </body>

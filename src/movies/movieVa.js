@@ -20,6 +20,7 @@ const movieSchema = z.object({
   genre: z
     .enum([
       "Action",
+      "Animation",
       "Adventure",
       "Biography",
       "Comedy",
